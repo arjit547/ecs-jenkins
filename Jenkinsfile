@@ -24,11 +24,6 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'ecr-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "sudo echo 'jenkins ALL=(ALL) NOPASSWD: /usr/bin/curl' > /etc/sudoers.d/jenkins"
-                    sh "sudo mkdir -p /usr/local/bin"
-                    sh "curl https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest -o /usr/local/bin/ecs-cli"
-                    sh "chmod +x /usr/local/bin/ecs-cli"
-                    sh "sudo chown jenkins:jenkins /usr/local/bin/ecs-cli"
                     sh "ecs deploy $ECS_CLUSTER $ECS_SERVICE $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
                     sh "aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --region $AWS_DEFAULT_REGION"
                 }
