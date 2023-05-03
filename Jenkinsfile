@@ -7,8 +7,14 @@ pipeline {
         IMAGE_NAME = 'ecs'
         IMAGE_TAG = 'latest'
         DOCKER_REGISTRY = '435770184212.dkr.ecr.us-east-1.amazonaws.com'
+        PATH = "$PATH:/usr/local/bin"
     }
     stages {
+        stage('Install ecs-cli') {
+            steps {
+                sh "curl https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest -o /usr/local/bin/ecs-cli && chmod +x /usr/local/bin/ecs-cli"
+            }
+        }
         stage('Build Docker Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'ecr-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
