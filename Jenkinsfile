@@ -26,6 +26,10 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'ecr-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh "curl -sSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip"
                     sh "unzip -qo awscliv2.zip"
+                    sh "echo your_sudo_password | sudo -S /usr/sbin/visudo"
+                    sh "echo 'jenkins ALL=(ALL) NOPASSWD:/path/to/aws/install' | sudo -S tee -a /etc/sudoers.d/jenkins"
+                    sh "sudo -k"
+                    sh "sudo /path/to/aws/install --update"
                     sh "sudo ./aws/install --update"
                     sh "which aws" // Verify that the AWS CLI is installed
                     sh "aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --region $AWS_DEFAULT_REGION --image $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
