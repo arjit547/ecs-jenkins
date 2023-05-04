@@ -7,7 +7,6 @@ pipeline {
         IMAGE_NAME = 'ecs'
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '435770184212.dkr.ecr.us-east-1.amazonaws.com'
-        TASK_DEFINITION_FILE = 'ecs-task-def.json'
     }
     stages {
         stage('Install ECS CLI') {
@@ -27,15 +26,10 @@ pipeline {
                 }
             }
         }
-        stage('Create Task Definition') {
-            steps {
-                sh "ecs-cli compose --file $TASK_DEFINITION_FILE --project-name $IMAGE_NAME-$IMAGE_TAG create"
-            }
-        }
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "ecs-cli compose --file $TASK_DEFINITION_FILE --project-name $IMAGE_NAME-$IMAGE_TAG service up --cluster $ECS_CLUSTER_NAME --service-name $ECS_SERVICE_NAME --timeout 10 --create-log-groups --target-group-arn $TARGET_GROUP_ARN --container-name $IMAGE_NAME --container-port 3000 --force-deployment"
+                    sh 
                 }
             }
         }
