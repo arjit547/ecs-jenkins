@@ -24,7 +24,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --region $AWS_DEFAULT_REGION --image $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+                    sh "ecs deploy $ECS_CLUSTER $ECS_SERVICE $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
                 }
             }
         }
