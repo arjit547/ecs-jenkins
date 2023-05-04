@@ -27,8 +27,6 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "sudo apt-get update && sudo apt-get install -y python3-pip"
-                    sh "pip install awscli --upgrade"
                     sh "aws ecs create-task-definition --family task --container-definitions '[{\"name\":\"task\",\"image\":\"$ECR_REGISTRY/ecs:$IMAGE_TAG\",\"essential\":true,\"portMappings\":[{\"containerPort\":$CONTAINER_PORT}],\"cpu\":$CPU_UNITS,\"memory\":$MEMORY_MB}]' > taskdefinition.json"
                     sh "aws ecs register-task-definition --cli-input-json file://taskdefinition.json"
                     sh "aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment --task-definition task"
