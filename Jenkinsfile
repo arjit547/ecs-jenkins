@@ -26,7 +26,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh "sudo apt-get update && sudo apt-get install -y python3-pip"
                     sh "pip install awscli --upgrade"
-                    sh "aws ecs update-service --cluster ${ECS_CLUSTER_NAME} --service ${ECS_SERVICE_NAME} --force-new-deployment --image ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "aws ecs update-service --cluster ${ECS_CLUSTER_NAME} --service ${ECS_SERVICE_NAME} --force-new-deployment --image 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest"
                 }
             }
         }
