@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Install ECS CLI') {
             steps {
-                sh 'curl https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest -o /usr/local/bin/ecs-cli && chmod +x /usr/local/bin/ecs-cli'
+                sh 'curl https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest -o /usr/local/bin/ecs-cli && sudo chmod o+w /usr/local/bin/'
             }
         }
         stage('Build Docker Image') {
