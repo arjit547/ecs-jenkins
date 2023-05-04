@@ -8,11 +8,6 @@ pipeline {
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '435770184212.dkr.ecr.us-east-1.amazonaws.com'
     }
-    stages{
-        stage('Install ECSCLI'){
-            sh "curl https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest -o /usr/local/bin/ecs-cli && chmod +x /usr/local/bin/ecs-cli"
-        }
-    }
     stages {
         stage('Build Docker Image') {
             steps {
