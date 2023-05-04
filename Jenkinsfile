@@ -26,16 +26,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh 'aws configure set default.region ${AWS_DEFAULT_REGION}'
-                    sh "ecs-cli compose --project-name ${ECS_SERVICE_NAME} service up \
-                    --launch-type FARGATE \
-                    --cluster ${ECS_CLUSTER_NAME} \
-                    --target-group-arn arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/bb4e054c2135af79 \
-                    --container-name react1-container \
-                    --container-port 3000 \
-                    --create-log-groups"
-                    sh "aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/bb4e054c2135af79 \
-                    --targets Id=${ECS_SERVICE_NAME}:3000"
+                    sh 
 
                 }
             }
