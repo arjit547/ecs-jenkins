@@ -8,7 +8,6 @@ pipeline {
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '435770184212.dkr.ecr.us-east-1.amazonaws.com'
         TASK_DEFINITION_FILE = 'ecs-task-def.json'
-        TARGET_GROUP_ARN = arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/bb4e054c2135af79
     }
     stages {
         stage('Install ECS CLI') {
