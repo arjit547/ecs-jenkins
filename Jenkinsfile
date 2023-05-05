@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
     environment {
@@ -63,7 +62,12 @@ pipeline {
                         }
                       ],
                       "networkMode": "awsvpc", 
-                      "tags": []
+                      "tags": [
+                        {
+                            "key": "Name",
+                            "value": "my-task"
+                        }
+                      ]
                     }"""
                     
                     sh "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'"
