@@ -77,8 +77,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                   sh "ecs deploy $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --image $TASK_DEF_IMAGE --service-load-balancer-name app-lb --service-load-balancer-target-group-arn arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/bb4e054c2135af79"
-                   sh "ecs deploy --service react1-Service --cluster clusterDev --image 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest"
+                  sh "ecs deploy --service $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --image $TASK_DEF_IMAGE --target-group-arn arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/bb4e054c2135af79 --container-name $TASK_DEF_CONTAINER_NAME --container-port 3000"
                 }
             }
         }
