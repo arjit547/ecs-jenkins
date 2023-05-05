@@ -29,7 +29,9 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh 
+                    sh 'ecs-cli compose --file ecs-task-def.yml --project-name ecs-latest create'
+                    sh 'ecs-cli compose --file ecs-task-def.yml --project-name ecs-latest register'
+                    sh 'ecs-cli compose --file ecs-task-def.yml --project-name ecs-latest service up'
                 }
             }
         }
