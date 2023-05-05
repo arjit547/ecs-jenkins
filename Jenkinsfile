@@ -66,9 +66,10 @@ pipeline {
                                 \"awsvpcConfiguration\": {
                                     \"subnets\": [\"$SUBNET_ID_1\", \"$SUBNET_ID_2\"],
                                     \"securityGroups\": [\"$SECURITY_GROUP_ID\"],
-                                    \"assignPublicIp\": \"DISABLED\"
+                                    \"assignPublicIp\": \"ENABLED\"
                                 }
-                            }
+                            },
+                            \"tags\": []
                         }
                     """
                     sh "aws ecs register-task-definition --cli-input-json '$taskDefJson'"
@@ -78,6 +79,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+
                    sh "ecs deploy $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --image $TASK_DEF_IMAGE"
                 }
             }
