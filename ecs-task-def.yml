@@ -1,17 +1,28 @@
 ---
-family: TaskDefinition
-networkMode: awsvpc
-containerDefinitions:
-  - name: react1-container
+version: '3'
+services:
+  react1-container:
     image: 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest
-    portMappings:
+    ports:
       - containerPort: 3000
         hostPort: 80
         protocol: tcp
-    essential: true
     cpu: 256
     memory: 512
-requiresCompatibilities:
-  - FARGATE
+    essential: true
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: us-east-1
+        awslogs-group: my-ecs-logs
+        awslogs-stream-prefix: react1-container
+    network_mode: awsvpc
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: us-east-1
+        awslogs-group: my-ecs-logs
+        awslogs-stream-prefix: react1-container
+
 
 
