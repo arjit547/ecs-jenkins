@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
     environment {
@@ -61,13 +62,7 @@ pipeline {
                           ]
                         }
                       ],
-                      "networkConfiguration": {
-                        "awsvpcConfiguration": {
-                          "subnets": ["${SUBNET_ID_1}", "${SUBNET_ID_2}"],
-                          "securityGroups": ["${SECURITY_GROUP_ID}"],
-                          "assignPublicIp": "DISABLED"
-                        }
-                      },
+                      "networkMode": "awsvpc", 
                       "tags": []
                     }"""
                     
