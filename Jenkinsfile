@@ -7,7 +7,6 @@ pipeline {
         IMAGE_NAME = 'ecs'
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '435770184212.dkr.ecr.us-east-1.amazonaws.com'
-        ECS_TASK_DEFINITION = 'task'
     }
     stages {
         stage('Install ECS CLI') {
@@ -30,7 +29,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "ecs deploy $ECS_CLUSTER_NAME $ECS_SERVICE_NAME --task-definition $ECS_TASK_DEFINITION --image $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+                   sh "ecs deploy $ECS_CLUSTER_NAME $ECS_SERVICE_NAME $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
                 }
             }
         }
