@@ -71,7 +71,10 @@ pipeline {
                       ]
                     }"""
                     
-                    sh "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'"
+                    def result = sh (script: "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'", returnStdout: true)
+                    def taskDefArn = sh(script: "echo \${result} | jq -r '.taskDefinition.taskDefinitionArn'", returnStdout: true).trim()
+                    def taskDefRevision = sh(script: "echo \${taskDefArn} | cut -d: -f6", returnStdout: true).trim()
+                    env.TASK_DEF_REVISION = taskDefRevision
                 }
             }
         }
