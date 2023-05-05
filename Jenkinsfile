@@ -32,13 +32,6 @@ pipeline {
                     '''
                 }
             }
-        }
-        stage('Delete ECS Task Definition') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "aws ecs deregister-task-definition --task-definition family:task"
-                }
-            }
         }        
         stage('Create ECS Task Definition for Fargate with VPC') {
             steps {
