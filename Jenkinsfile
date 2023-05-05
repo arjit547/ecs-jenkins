@@ -7,11 +7,14 @@ pipeline {
         IMAGE_NAME = 'ecs'
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '435770184212.dkr.ecr.us-east-1.amazonaws.com'
+        ECS_TASK_DEFINITION = 'task'
     }
     stages {
         stage('Install ECS CLI') {
             steps {
                 sh 'sudo curl https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest -o /usr/local/bin/ecs-cli && sudo chmod +x /usr/local/bin/ecs-cli'
+                sh 'npm install'
+                sh 'npm run build' 
             }
         }
         stage('Build Docker Image') {
@@ -29,9 +32,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh 'ecs-cli compose --file ecs-task-def.yml --project-name ecs-latest create'
-                    sh 'ecs-cli compose --file ecs-task-def.yml --project-name ecs-latest register'
-                    sh 'ecs-cli compose --file ecs-task-def.yml --project-name ecs-latest service up'
+                    sh "ecs deploy $ECS_CLUSTER_NAME $ECS_SERVICE_NAME --task-definition $ECS_TASK_DEFINITION --image $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
                 }
             }
         }
