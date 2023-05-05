@@ -38,41 +38,40 @@ pipeline {
         stage('Create ECS Task Definition for Fargate with VPC') {
             steps {
                 script {
-                    def taskDefJson = """
+                    def taskDefJson = """{
+                      "family": "${TASK_DEF_FAMILY}",
+                      "networkMode": "awsvpc",
+                      "executionRoleArn": "${EXECUTION_ROLE_ARN}",
+                      "requiresCompatibilities": [
+                        "FARGATE"
+                      ],
+                      "cpu": "${TASK_DEF_CPU}",
+                      "memory": "${TASK_DEF_MEMORY}",
+                      "containerDefinitions": [
                         {
-                            \"family\": \"$TASK_DEF_FAMILY\",
-                            \"networkMode\": \"awsvpc\",
-                            \"executionRoleArn\": \"$EXECUTION_ROLE_ARN\",
-                            \"requiresCompatibilities\": [
-                                \"FARGATE\"
-                            ],
-                            \"cpu\": \"$TASK_DEF_CPU\",
-                            \"memory\": \"$TASK_DEF_MEMORY\",
-                            \"containerDefinitions\": [
-                                {
-                                    \"name\": \"$TASK_DEF_CONTAINER_NAME\",
-                                    \"image\": \"$TASK_DEF_IMAGE\",
-                                    \"cpu\": $TASK_DEF_CPU,
-                                    \"memory\": $TASK_DEF_MEMORY,
-                                    \"portMappings\": [
-                                        {
-                                            \"containerPort\": 3000,
-                                            \"protocol\": \"tcp\"
-                                        }
-                                    ]
-                                }
-                            ],
-                            \"networkConfiguration\": {
-                                \"awsvpcConfiguration\": {
-                                    \"subnets\": [\"$SUBNET_ID_1\", \"$SUBNET_ID_2\"],
-                                    \"securityGroups\": [\"$SECURITY_GROUP_ID\"],
-                                    \"assignPublicIp\": \"ENABLED\"
-                                }
-                            },
-                            \"tags\": []
+                          "name": "${TASK_DEF_CONTAINER_NAME}",
+                          "image": "${TASK_DEF_IMAGE}",
+                          "cpu": ${TASK_DEF_CPU},
+                          "memory": ${TASK_DEF_MEMORY},
+                          "portMappings": [
+                            {
+                              "containerPort": 3000,
+                              "protocol": "tcp"
+                            }
+                          ]
                         }
-                    """
-                    sh "aws ecs register-task-definition --cli-input-json '${taskDefJson}'"
+                      ],
+                      "networkConfiguration": {
+                        "awsvpcConfiguration": {
+                          "subnets": ["${SUBNET_ID_1}", "${SUBNET_ID_2}"],
+                          "securityGroups": ["${SECURITY_GROUP_ID}"],
+                          "assignPublicIp": "ENABLED"
+                        }
+                      },
+                      "tags": []
+                    }"""
+                    
+                    sh "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'"
                 }
             }
         }
