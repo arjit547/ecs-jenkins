@@ -4,7 +4,9 @@ services:
     image: 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest
     ports:
       - "80:3000"
-    memory: 512
+    essential: true
+    memoryReservation: 512
+    cpu: 256
     network_mode: awsvpc
     logging:
       driver: awslogs
