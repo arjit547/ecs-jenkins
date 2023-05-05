@@ -31,16 +31,6 @@ pipeline {
                 }
             }
         }
-        stage('Delete ECS Task Definition') {
-            steps {
-                script {
-                    def taskDefList = sh(script: "aws ecs list-task-definitions --family-prefix $TASK_DEF_FAMILY --status ACTIVE --query 'taskDefinitionArns' --output text", returnStdout: true).trim()
-                    for (def taskDefArn in taskDefList.split()) {
-                        sh "aws ecs deregister-task-definition --task-definition $taskDefArn"
-                    }
-                }
-            }
-        }
         stage('Create ECS Task Definition') {
             steps {
                 script {
