@@ -29,7 +29,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                   sh "ecs deploy $ECS_CLUSTER_NAME $ECS_SERVICE_NAME $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+                   sh "ecs deploy $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --image $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
                 }
             }
         }
