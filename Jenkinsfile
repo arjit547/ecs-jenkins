@@ -65,12 +65,13 @@ pipeline {
                       "tags": [
                         {
                             "key": "Name",
-                            "value": "my-task"
+                            "value": "myterraformvpc"
                         }
                       ]
                     }"""
                     
                     sh "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'"
+                    sh "aws ecs run-task --cluster ${CLUSTER_NAME} --task-definition ${TASK_DEF_FAMILY}:${TASK_DEF_REVISION}"
                 }
             }
         }
