@@ -72,7 +72,7 @@ pipeline {
                             \"tags\": []
                         }
                     """
-                    sh "aws ecs register-task-definition --cli-input-json '$taskDefJson'"
+                    sh "aws ecs register-task-definition --cli-input-json '${taskDefJson}'"
                 }
             }
         }
