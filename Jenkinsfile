@@ -15,11 +15,13 @@ pipeline {
         TASK_DEF_IMAGE = "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
         EXECUTION_ROLE_ARN = 'arn:aws:iam::435770184212:role/ecsTaskExecutionRole'
         ALB_TARGET_GROUP_ARN = 'arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/bb4e054c2135af79'
+        TASK_DEF_REVISION = sh (script: "aws ecs describe-task-definition --task-definition $TASK_DEF_FAMILY --query 'taskDefinition.revision'", returnStdout: true).trim()
     }
     stages {
         stage('Install ECS CLI') {
             steps {
                 sh 'sudo curl https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest -o /usr/local/bin/ecs-cli && sudo chmod +x /usr/local/bin/ecs-cli' 
+                sh 'sudo apt-get update && sudo apt-get install -y jq'
             }
         }
         stage('Build Docker Image') {
@@ -37,7 +39,7 @@ pipeline {
         stage('Delete ECS Task Definition') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "aws ecs deregister-task-definition --task-definition ${TASK_DEF_FAMILY}:latest"
+                    sh "aws ecs deregister-task-definition --task-definition $TASK_DEF_FAMILY:$TASK_DEF_REVISION"
                 }
             }
         }        
@@ -76,7 +78,10 @@ pipeline {
                       ]
                     }"""
                     
-                    sh "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'"
+                    def result = sh(script: "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'", returnStdout: true)
+                    def taskDefArn = sh(script: "echo \${result} | jq -r '.taskDefinition.taskDefinitionArn'", returnStdout: true).trim()
+                    def taskDefRevision = sh(script: "echo \${taskDefArn} | cut -d: -f6", returnStdout: true).trim()
+                    env.TASK_DEF_REVISION = taskDefRevision
                 }
             }
         }
