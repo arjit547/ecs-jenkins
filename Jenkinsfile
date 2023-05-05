@@ -7,6 +7,11 @@ pipeline {
         IMAGE_NAME = 'ecs'
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '435770184212.dkr.ecr.us-east-1.amazonaws.com'
+        TASK_DEF_FAMILY = 'task'
+        TASK_DEF_CPU = '256'
+        TASK_DEF_MEMORY = '512'
+        TASK_DEF_CONTAINER_NAME = 'react1-container'
+        TASK_DEF_IMAGE = "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
     }
     stages {
         stage('Install ECS CLI') {
@@ -23,6 +28,36 @@ pipeline {
                      docker tag ecs:latest 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest
                      docker push 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest
                     '''
+                }
+            }
+        }
+        stage('Delete ECS Task Definition') {
+            steps {
+                script {
+                    def taskDefList = sh(script: "aws ecs list-task-definitions --family-prefix $TASK_DEF_FAMILY --status ACTIVE --query 'taskDefinitionArns' --output text", returnStdout: true).trim()
+                    for (def taskDefArn in taskDefList.split()) {
+                        sh "aws ecs deregister-task-definition --task-definition $taskDefArn"
+                    }
+                }
+            }
+        }
+        stage('Create ECS Task Definition') {
+            steps {
+                script {
+                    def taskDefJson = """
+                        {
+                            \"family\": \"$TASK_DEF_FAMILY\",
+                            \"containerDefinitions\": [
+                                {
+                                    \"name\": \"$TASK_DEF_CONTAINER_NAME\",
+                                    \"image\": \"$TASK_DEF_IMAGE\",
+                                    \"cpu\": $TASK_DEF_CPU,
+                                    \"memory\": $TASK_DEF_MEMORY
+                                }
+                            ]
+                        }
+                    """
+                    sh "aws ecs register-task-definition --cli-input-json '$taskDefJson'"
                 }
             }
         }
