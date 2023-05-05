@@ -1,5 +1,5 @@
 ---
-family: task
+family: TaskDefinition
 networkMode: awsvpc
 containerDefinitions:
   - name: react1-container
