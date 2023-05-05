@@ -8,8 +8,6 @@ services:
       placement:
         constraints:
           - "distinctInstance"
-    cpu: 256
-    memory: 512
     network_mode: awsvpc
 
 
