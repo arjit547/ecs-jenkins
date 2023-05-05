@@ -17,6 +17,7 @@ pipeline {
         SUBNET_ID_1 = 'subnet-0bed575f58c89b793'
         SUBNET_ID_2 = 'subnet-0ce4c422484528322'
         SECURITY_GROUP_ID = 'sg-0171390e40b1bb16a'
+        TASK_DEF_REVISION = ''
     }
     stages {
         stage('Install ECS CLI') {
