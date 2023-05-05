@@ -6,7 +6,7 @@ containerDefinitions:
     image: 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest
     portMappings:
       - containerPort: 3000
-        hostPort: "80"
+        hostPort: 80
         protocol: tcp
     essential: true
     cpu: 256
