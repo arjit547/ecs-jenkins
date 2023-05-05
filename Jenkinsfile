@@ -12,6 +12,10 @@ pipeline {
         TASK_DEF_MEMORY = '512'
         TASK_DEF_CONTAINER_NAME = 'react1-container'
         TASK_DEF_IMAGE = "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+        EXECUTION_ROLE_ARN = 'arn:aws:iam::435770184212:role/ecsTaskExecutionRole'
+        SUBNET_ID_1 = 'subnet-0bed575f58c89b793'
+        SUBNET_ID_2 = 'subnet-0ce4c422484528322'
+        SECURITY_GROUP_ID = 'sg-0171390e40b1bb16a'
     }
     stages {
         stage('Install ECS CLI') {
@@ -31,20 +35,40 @@ pipeline {
                 }
             }
         }
-        stage('Create ECS Task Definition') {
+        stage('Create ECS Task Definition for Fargate with VPC') {
             steps {
                 script {
                     def taskDefJson = """
                         {
                             \"family\": \"$TASK_DEF_FAMILY\",
+                            \"networkMode\": \"awsvpc\",
+                            \"executionRoleArn\": \"$EXECUTION_ROLE_ARN\",
+                            \"requiresCompatibilities\": [
+                                \"FARGATE\"
+                            ],
+                            \"cpu\": \"$TASK_DEF_CPU\",
+                            \"memory\": \"$TASK_DEF_MEMORY\",
                             \"containerDefinitions\": [
                                 {
                                     \"name\": \"$TASK_DEF_CONTAINER_NAME\",
                                     \"image\": \"$TASK_DEF_IMAGE\",
                                     \"cpu\": $TASK_DEF_CPU,
-                                    \"memory\": $TASK_DEF_MEMORY
+                                    \"memory\": $TASK_DEF_MEMORY,
+                                    \"portMappings\": [
+                                        {
+                                            \"containerPort\": 3000,
+                                            \"protocol\": \"tcp\"
+                                        }
+                                    ]
                                 }
-                            ]
+                            ],
+                            \"networkConfiguration\": {
+                                \"awsvpcConfiguration\": {
+                                    \"subnets\": [\"$SUBNET_ID_1\", \"$SUBNET_ID_2\"],
+                                    \"securityGroups\": [\"$SECURITY_GROUP_ID\"],
+                                    \"assignPublicIp\": \"DISABLED\"
+                                }
+                            }
                         }
                     """
                     sh "aws ecs register-task-definition --cli-input-json '$taskDefJson'"
@@ -54,7 +78,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                   sh "ecs deploy $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --image $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+                   sh "ecs deploy $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --image $TASK_DEF_IMAGE"
                 }
             }
         }
