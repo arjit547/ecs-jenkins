@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
     environment {
@@ -38,11 +37,20 @@ pipeline {
         }
         stage('Delete ECS Task Definition') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "aws ecs deregister-task-definition --task-definition $TASK_DEF_FAMILY:$TASK_DEF_REVISION"
+                script {
+                    def taskDefFamily = "${TASK_DEF_FAMILY}"
+                    def taskDefRevisions = sh(
+                        script: "aws ecs list-task-definitions --family ${taskDefFamily} --status ACTIVE --query 'sort(@) | reverse(@)'",
+                        returnStdout: true
+                    ).split()
+
+                    // Delete all task definition revisions except the latest one
+                    for (int i = 1; i < taskDefRevisions.size(); i++) {
+                        sh "aws ecs deregister-task-definition --task-definition ${taskDefFamily}:${taskDefRevisions[i]}"
+                    }
                 }
             }
-        }        
+        }   
         stage('Create ECS Task Definition for Fargate with VPC') {
             steps {
                 script {
@@ -60,7 +68,7 @@ pipeline {
                           "name": "${TASK_DEF_CONTAINER_NAME}",
                           "image": "${TASK_DEF_IMAGE}",
                           "cpu": ${TASK_DEF_CPU},
-                          "memory": ${TASK_DEF_MEMORY},
+                          "memory": ${TASK_DEF_MEMORY
                           "portMappings": [
                             {
                               "containerPort": 3000,
