@@ -81,6 +81,7 @@ pipeline {
         stage('Deploy to ECS') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                  sh "aws ecs update-service --service $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --force-new-deployment"
                   sh "ecs deploy --service $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --image $TASK_DEF_IMAGE:$TASK_DEF_REVISION --target-group-arn arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/bb4e054c2135af79 --container-name $TASK_DEF_CONTAINER_NAME --container-port 3000"
                 }
             }
