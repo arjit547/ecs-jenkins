@@ -14,7 +14,7 @@ pipeline {
         TASK_DEF_IMAGE = "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
         EXECUTION_ROLE_ARN = 'arn:aws:iam::435770184212:role/ecsTaskExecutionRole'
         ALB_TARGET_GROUP_ARN = 'arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/e67cdb694df36863'
-        TASK_DEF_REVISION = sh (script: "aws ecs describe-task-definition --task-definition $TASK_DEF_FAMILY --query 'taskDefinition.revision'", returnStdout: true).trim()
+        TASK_DEF_REVISION = 'latest'
     }
     stages {
         stage('Install ECS CLI') {
