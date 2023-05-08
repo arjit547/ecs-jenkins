@@ -1,7 +1,7 @@
 const http = require('http');
 
 const server = http.createServer((req, res) => {
-  res.end('DEVOPS-ECS-Arjit');
+  res.end('DEVOPS-ECS-Ritesh');
 });
 
 server.listen(3000, () => {
