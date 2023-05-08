@@ -20,7 +20,7 @@ pipeline {
         stage('Install ECS CLI') {
             steps {
                 sh 'sudo curl https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest -o /usr/local/bin/ecs-cli && sudo chmod +x /usr/local/bin/ecs-cli' 
-                
+                sh 'sudo apt-get update && sudo apt-get install -y jq'
             }
         }
         stage('Build Docker Image') {
@@ -32,6 +32,13 @@ pipeline {
                      docker tag ecs:latest 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest
                      docker push 435770184212.dkr.ecr.us-east-1.amazonaws.com/ecs:latest
                     '''
+                }
+            }
+        }
+        stage('Delete ECS Task Definition') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'my-aws-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh "aws ecs deregister-task-definition --task-definition $TASK_DEF_FAMILY:$TASK_DEF_REVISION"
                 }
             }
         }        
@@ -69,8 +76,11 @@ pipeline {
                         }
                       ]
                     }"""
-                    sh "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'"
                     
+                    def result = sh(script: "aws ecs register-task-definition --cli-input-json '${taskDefJson.replaceAll('"', '\\"')}'", returnStdout: true)
+                    def taskDefArn = sh(script: "echo \${result} | jq -r '.taskDefinition.taskDefinitionArn'", returnStdout: true).trim()
+                    def taskDefRevision = sh(script: "echo \${taskDefArn} | cut -d: -f6", returnStdout: true).trim()
+                    env.TASK_DEF_REVISION = taskDefRevision
                 }
             }
         }
@@ -83,3 +93,4 @@ pipeline {
             }
         }
     }
+}
