@@ -7,13 +7,13 @@ pipeline {
         IMAGE_NAME = 'ecs'
         IMAGE_TAG = 'latest'
         ECR_REGISTRY = '435770184212.dkr.ecr.us-east-1.amazonaws.com'
-        TASK_DEF_FAMILY = 'task'
+        TASK_DEF_FAMILY = 'tasknew'
         TASK_DEF_CPU = '256'
         TASK_DEF_MEMORY = '512'
         TASK_DEF_CONTAINER_NAME = 'react1-container'
         TASK_DEF_IMAGE = "$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
         EXECUTION_ROLE_ARN = 'arn:aws:iam::435770184212:role/ecsTaskExecutionRole'
-        ALB_TARGET_GROUP_ARN = 'arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/bb4e054c2135af79'
+        ALB_TARGET_GROUP_ARN = 'arn:aws:elasticloadbalancing:us-east-1:435770184212:targetgroup/tg-group/e67cdb694df36863'
         TASK_DEF_REVISION = sh (script: "aws ecs describe-task-definition --task-definition $TASK_DEF_FAMILY --query 'taskDefinition.revision'", returnStdout: true).trim()
     }
     stages {
